@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA & Mobile Meta Tags -->
+    <meta name="theme-color" content="#070709">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CASANDRA">
+    <meta name="description" content="CASANDRA - Generador Underground de Anagramas Progresivos - PWA para Mentalismo e Ilusionismo">
+    
+    <title>CASANDRA // MIND-NOIR 90s PWA</title>
+    
+    <!-- Dependencies: Tailwind CSS, jQuery & html2canvas -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts for 90s Zine & Typewriter Aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        grunge: {
+                            base: '#070709',
+                            card: '#121319',
+                            border: '#2a2d3d',
+                            rust: '#8b0000',
+                            crimson: '#c0392b',
+                            amber: '#ffb000',
+                            neon: '#39ff14',
+                            cyan: '#00f3ff'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['VT323', 'monospace'],
+                        typewriter: ['Special Elite', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* 90s Industrial CRT Scanline Overlay */
+        body {
+            background-color: #070709;
+            background-image: 
+                radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 50%, rgba(0, 0, 0, 0.5) 51%);
+            background-size: 20px 20px, 100% 4px;
+            color: #d1d5db;
+            font-family: 'Special Elite', 'Courier New', monospace;
+        }
+
+        .scanline-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.6;
+        }
+
+        /* Zine Brutalist Borders & Buttons */
+        .grunge-box {
+            background: #121319;
+            border: 2px solid #2a2d3d;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        .grunge-btn {
+            background: #1a1c26;
+            border: 2px solid #2a2d3d;
+            box-shadow: 3px 3px 0px #000;
+            transition: all 0.15s ease-in-out;
+            text-transform: uppercase;
+        }
+
+        .grunge-btn:hover {
+            border-color: #ffb000;
+            color: #ffb000;
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0px #000;
+        }
+
+        .grunge-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000;
+        }
+
+        .amber-glow { text-shadow: 0 0 8px rgba(255, 176, 0, 0.6); }
+        .green-glow { text-shadow: 0 0 8px rgba(57, 255, 20, 0.6); }
+
+        /* Anagram Tree Nodes Styling */
+        .grp0 {
+            width: 48px;
+            height: 48px;
+            line-height: 44px;
+            margin-bottom: 10px;
+            margin-right: 10px;
+            background-color: #ffb000;
+            color: #000;
+            font-weight: bold;
+            font-family: 'VT323', monospace;
+            border: 2px solid #000;
+            box-shadow: 3px 3px 0px #000;
+            float: left;
+            cursor: pointer;
+            font-size: 32px;
+            text-align: center;
+        }
+        .grp0:hover {
+            background-color: #39ff14;
+        }
+
+        .grp1 {
+            width: calc(100% - 70px);
+            margin-bottom: 10px;
+            padding: 12px 16px;
+            background-color: #1a1c26;
+            border: 2px solid #2a2d3d;
+            box-shadow: 3px 3px 0px #000;
+            float: left;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .grp2 {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 12px 16px;
+            background-color: #1a1c26;
+            border: 2px solid #2a2d3d;
+            box-shadow: 3px 3px 0px #000;
+            clear: both;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .grp1:hover, .grp2:hover {
+            border-color: #39ff14;
+            color: #39ff14;
+        }
+
+        .letters { display: none; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #070709; }
+        ::-webkit-scrollbar-thumb { background: #2a2d3d; border: 1px solid #ffb000; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-grunge-amber selection:text-black">
+    
+    <div class="scanline-overlay"></div>
+
+    <!-- Header Section -->
+    <header class="border-b-2 border-grunge-border bg-black/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-black border-2 border-grunge-amber flex items-center justify-center text-grunge-amber text-xl shadow-[3px_3px_0px_#ffb000]">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                    <h1 id="title-text" class="text-base sm:text-xl font-bold tracking-widest text-white flex items-center gap-2 font-mono">
+                        CASANDRA <span class="text-grunge-amber amber-glow">// NOIR</span>
+                    </h1>
+                    <p class="text-[10px] text-gray-500 font-mono tracking-wider uppercase">Progressive Anagram Suite • PWA</p>
+                </div>
+            </div>
+
+            <!-- Controls: Install PWA & Language Switcher -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="pwa-install-btn" class="hidden grunge-btn px-2.5 py-1 text-xs text-grunge-neon border-grunge-neon font-mono flex items-center gap-1">
+                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">INSTALL</span>
+                </button>
+
+                <div id="language" class="flex bg-black p-1 border border-grunge-border font-mono text-xs">
+                    <span id="lang-en" class="px-2 py-1 cursor-pointer text-gray-500 hover:text-white">EN</span>
+                    <span id="lang-fr" class="px-2 py-1 cursor-pointer text-gray-500 hover:text-white">FR</span>
+                    <span id="lang-es" class="px-2 py-1 cursor-pointer text-grunge-amber font-bold bg-grunge-card">ES</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl w-full mx-auto p-3 sm:p-4 flex-grow space-y-6">
+
+        <!-- Input & Form Box -->
+        <div id="container_form" class="grunge-box p-4 sm:p-6 space-y-4">
+            
+            <div class="flex flex-col md:flex-row gap-4">
+                <!-- Text Area Input -->
+                <div class="w-full md:w-7/12">
+                    <label for="form" class="block text-xs font-mono uppercase text-gray-400 mb-1 flex justify-between">
+                        <span>Listado de Palabras</span>
+                        <span id="lbl-word-count" class="text-grunge-amber">0 palabras</span>
+                    </label>
+                    <textarea id="form" placeholder="Escribe varias palabras separadas por comas..." class="w-full h-36 md:h-48 bg-black border-2 border-grunge-border p-3 text-sm text-grunge-neon font-mono focus:outline-none focus:border-grunge-amber placeholder:text-gray-700 resize-none"></textarea>
+                </div>
+
+                <!-- Presets & Parameters Grid -->
+                <div id="presets" class="w-full md:w-5/12 flex flex-col justify-between space-y-3">
+                    <div>
+                        <span class="block text-xs font-mono uppercase text-gray-400 mb-1">Presets Rápidos</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-1.5 font-mono">
+                            <input type="button" class="preset astrology grunge-btn py-2 text-xs text-gray-300" value="ZODÍACO">
+                            <input type="button" class="preset planets grunge-btn py-2 text-xs text-gray-300" value="PLANETAS">
+                            <input type="button" class="preset days grunge-btn py-2 text-xs text-gray-300" value="DÍAS">
+                            <input type="button" class="preset months grunge-btn py-2 text-xs text-gray-300" value="MESES">
+                            <input type="button" class="preset animals grunge-btn py-2 text-xs text-gray-300" value="ANIMALES">
+                            <input type="button" class="preset superheros grunge-btn py-2 text-xs text-gray-300" value="SUPERHÉROES">
+                        </div>
+                    </div>
+
+                    <!-- Max Error Selector -->
+                    <div id="nonumb_container" class="bg-black border border-grunge-border p-2 text-xs font-mono flex items-center justify-between">
+                        <span id="label-max-error" class="text-gray-400">Errores máx:</span>
+                        <select id="nonumb" class="bg-grunge-card text-white border border-grunge-border px-2 py-1 text-xs focus:outline-none focus:border-grunge-amber">
+                            <option value="3">3</option>
+                            <option value="2" selected>2</option>
+                            <option value="1">1</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <input type="button" id="submit" class="w-full grunge-btn py-3 text-black font-bold text-sm tracking-widest bg-grunge-amber hover:bg-yellow-400 border-none cursor-pointer" value="GENERAR">
+        </div>
+
+        <!-- Output & Performance Section -->
+        <div id="main" class="space-y-4">
+            
+            <!-- Hidden Counters Data -->
+            <div class="letters">
+                <h class="a">0</h><h class="b">0</h><h class="c">0</h><h class="d">0</h>
+                <h class="e">0</h><h class="f">0</h><h class="g">0</h><h class="h">0</h>
+                <h class="i">0</h><h class="j">0</h><h class="k">0</h><h class="l">0</h>
+                <h class="m">0</h><h class="n">0</h><h class="o">0</h><h class="p">0</h>
+                <h class="q">0</h><h class="r">0</h><h class="s">0</h><h class="t">0</h>
+                <h class="u">0</h><h class="v">0</h><h class="w">0</h><h class="x">0</h>
+                <h class="y">0</h><h class="z">0</h>
+            </div>
+            
+            <!-- Resulting Tree Output -->
+            <div id="result" class="grunge-box p-4 hidden overflow-x-auto max-w-full touch-pan-x"></div>
+            <div class="clear"></div>
+            
+            <!-- Control Buttons after Generation -->
+            <div class="buttons hidden" id="testsave">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="button" id="test" class="grunge-btn py-3 text-grunge-amber border-grunge-amber text-xs font-bold" value="PROBAR">
+                    <input type="button" id="save" class="grunge-btn py-3 text-gray-300 text-xs font-bold" value="GUARDAR IMAGEN">
+                </div>
+            </div>
+
+            <!-- Performance Test Script Box -->
+            <div id="text" class="grunge-box p-6 hidden text-center space-y-4 border-2 border-grunge-amber">
+                <div class="text-xs text-gray-500 font-mono uppercase tracking-widest border-b border-grunge-border pb-2">Guión de Mentalismo en Vivo</div>
+                <div id="script-display" class="text-lg sm:text-xl font-mono text-white leading-relaxed my-4"></div>
+            </div>
+            
+            <!-- Live Performance Yes / No Buttons -->
+            <div class="buttons hidden" id="yesno">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="button" id="no" class="grunge-btn py-4 text-rose-500 border-rose-500 font-bold text-lg" value="NO">
+                    <input type="button" id="yes" class="grunge-btn py-4 text-grunge-neon border-grunge-neon font-bold text-lg" value="SÍ">
+                </div>
+            </div>
+            
+            <!-- Retest & Back Buttons -->
+            <div class="buttons hidden" id="retestgoback">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="button" id="retest" class="grunge-btn py-3 text-grunge-amber border-grunge-amber text-xs font-bold" value="REPETIR PRUEBA">
+                    <input type="button" id="goback" class="grunge-btn py-3 text-gray-300 text-xs font-bold" value="VOLVER AL ESQUEMA">
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-grunge-border py-4 bg-black text-center text-xs font-mono text-gray-600">
+        <p>CASANDRA // Progressive Anagram PWA Suite © 1996-2026</p>
+    </footer>
+
+    <!-- JavaScript & PWA Core Logic -->
+    <script>
+    (function() {
+        var currentLang = "ES";
+
+        var I18N = {
+            EN: {
+                title: "CASANDRA Anagram Generator",
+                placeholder: "Put several words separated by commas...",
+                astrology: "ASTROLOGY",
+                astrology_words: "Aries, Taurus, Gemini, Cancer, Leo, Virgo, Libra, Scorpio, Sagittarius, Capricorn, Aquarius, Pisces",
+                planets: "PLANETS",
+                planets_words: "Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto",
+                days: "DAYS",
+                days_words: "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday",
+                months: "MONTHS",
+                months_words: "January, February, March, April, May, June, July, August, September, October, November, December",
+                animals: "ANIMALS",
+                animals_words: "Dog, Cat, Bird, Fish, Mouse, Hamster, Rabbit, Turtle",
+                superheros: "SUPERHEROES",
+                superheros_words: "Aquaman, Batman, Catwoman, Flash, Green Lantern, Superman, Ant-Man, Black Panther, Blade, Captain America, Captain Marvel, Daredevil, Deadpool, Doctor Strange, Hulk, Iron Man, Kick-Ass, Spider-Man, Thor",
+                submit: "GENERATE",
+                maxError: "Maximum error count: ",
+                test: "TEST REHEARSAL",
+                save: "SAVE IMAGE",
+                yes: "YES",
+                no: "NO",
+                retest: "RETEST",
+                goback: "SEE THE ANAGRAM",
+                alert01: "There are not enough words!",
+                alert02: "The words have the same letters!",
+                sent01a: "« Please focus on each letter of your word.<br />[...]<br />I'm seeing an <b class='text-grunge-amber text-2xl font-mono'>",
+                sent01b: "</b>... »",
+                sent02a: "« ...and an <b class='text-grunge-amber text-2xl font-mono'>",
+                sent02b: "</b>... »",
+                sent03a: "« Imagine telling me your word.<br />[...]<br />Hmm I'm getting something...<br />Are you thinking of <b class='text-grunge-neon text-2xl font-mono'>",
+                sent03b: "</b>? »",
+                sent04a: "« Hmm... maybe an <b class='text-grunge-amber text-2xl font-mono'>",
+                sent04b: "</b>... »",
+                sent05a: "« Never mind. Let's try something else. <br />Imagine telling me your word.<br />[...]<br />Hmm I'm getting something...<br />Are you thinking of <b class='text-grunge-neon text-2xl font-mono'>",
+                sent05b: "</b>? »",
+                sent00a: "</b> or <b>"
+            },
+            FR: {
+                title: "CASANDRA Générateur d'Anagramme",
+                placeholder: "Écrivez plusieurs mots séparés entre eux par une virgule...",
+                astrology: "ASTROLOGIE",
+                astrology_words: "Bélier, Taureau, Gémeaux, Cancer, Lion, Vierge, Balance, Scorpion, Sagittaire, Capricorne, Verseau, Poissons",
+                planets: "PLANÈTES",
+                planets_words: "Mercure, Vénus, Terre, Mars, Jupiter, Saturne, Uranus, Neptune, Pluton",
+                days: "JOURS",
+                days_words: "Lundi, Mardi, Mercredi, Jeudi, Vendredi, Samedi, Dimanche",
+                months: "MOIS",
+                months_words: "Janvier, Février, Mars, Avril, Mai, Juin, Juillet, Aout, Septembre, Octobre, Novembre, Décembre",
+                animals: "ANIMAUX",
+                animals_words: "Chien, Chat, Oiseau, Poisson, Souris, Hamster, Lapin, Tortue",
+                superheros: "SUPER-HÉROS",
+                superheros_words: "Aquaman, Batman, Catwoman, Flash, Green Lantern, Superman, Ant-Man, Black Panther, Blade, Captain America, Captain Marvel, Daredevil, Deadpool, Doctor Strange, Hulk, Iron Man, Kick-Ass, Spider-Man, Thor",
+                submit: "GÉNÉRER",
+                maxError: "Nombre d'erreurs max : ",
+                test: "TESTER",
+                save: "ENREGISTRER",
+                yes: "OUI",
+                no: "NON",
+                retest: "RETESTER",
+                goback: "VOIR L'ANAGRAMME",
+                alert01: "Il n'y a pas assez de mots !",
+                alert02: "Les mots ont les mêmes lettres !",
+                sent01a: "« Concentre-toi sur chacune des lettres de ton mot.<br />[...]<br />Je vois un <b class='text-grunge-amber text-2xl font-mono'>",
+                sent01b: "</b>... »",
+                sent02a: "« ...et un <b class='text-grunge-amber text-2xl font-mono'>",
+                sent02b: "</b>... »",
+                sent03a: "« Imagine me transmettre ton mot par l'esprit.<br />[...]<br />Hmm je crois que je reçois quelque chose...<br />Est-ce que tu ne penserais pas à <b class='text-grunge-neon text-2xl font-mono'>",
+                sent03b: "</b> ? »",
+                sent04a: "« Hmm... Peut-être un <b class='text-grunge-amber text-2xl font-mono'>",
+                sent04b: "</b>... »",
+                sent05a: "« Bon, on va tenter autre chose.<br />Imagine me transmettre ton mot par l'esprit.<br />[...]<br />Hmm je crois que je reçois quelque chose...<br />Est-ce que tu ne penserais pas à <b class='text-grunge-neon text-2xl font-mono'>",
+                sent05b: "</b> ? »",
+                sent00a: "</b> ou <b>"
+            },
+            ES: {
+                title: "CASANDRA Generador Anagrama Progresivo",
+                placeholder: "Escribe varias palabras separadas por comas...",
+                astrology: "ZODÍACO",
+                astrology_words: "Aries, Tauro, Geminis, Cancer, Leo, Virgo, Libra, Escorpio, Sagitario, Capricornio, Acuario, Piscis",
+                planets: "PLANETAS",
+                planets_words: "Mercurio, Venus, Tierra, Marte, Jupiter, Saturno, Urano, Neptuno, Pluton",
+                days: "DÍAS",
+                days_words: "Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo",
+                months: "MESES",
+                months_words: "Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre",
+                animals: "ANIMALES",
+                animals_words: "Perro, Gato, Pajaro, Pez, Raton, Hamster, Conejo, Tortuga",
+                superheros: "SUPERHÉROES",
+                superheros_words: "Aquaman, Batman, Catwoman, Flash, Linterna Verde, Superman, Hombre Hormiga, Pantera Negra, Blade, Capitan America, Capitan Marvel, Daredevil, Deadpool, Doctor Strange, Hulk, Iron Man, Kick-Ass, Spider-Man, Thor",
+                submit: "GENERAR",
+                maxError: "Errores máximos: ",
+                test: "PROBAR",
+                save: "GUARDAR IMAGEN",
+                yes: "SÍ",
+                no: "NO",
+                retest: "REPETIR PRUEBA",
+                goback: "VER ANAGRAMA",
+                alert01: "¡No hay suficientes palabras!",
+                alert02: "¡Las palabras contienen exactamente las mismas letras!",
+                sent01a: "« Por favor concéntrate en cada una de las letras de tu palabra.<br />[...]<br />Veo una letra... una <b class='text-grunge-amber text-2xl font-mono'>",
+                sent01b: "</b>... »",
+                sent02a: "« ...y también una <b class='text-grunge-amber text-2xl font-mono'>",
+                sent02b: "</b>... »",
+                sent03a: "« Imagina transmitirme la palabra mentalmente.<br />[...]<br />Siento algo con claridad...<br />¿Estás pensando en <b class='text-grunge-neon text-2xl font-mono'>",
+                sent03b: "</b>? »",
+                sent04a: "« Hmm... tal vez una <b class='text-grunge-amber text-2xl font-mono'>",
+                sent04b: "</b>... »",
+                sent05a: "« No importa, intentémoslo de otra forma.<br />Imagina decirme tu palabra en voz alta.<br />[...]<br />Llega algo a mi mente...<br />¿Tu palabra es <b class='text-grunge-neon text-2xl font-mono'>",
+                sent05b: "</b>? »",
+                sent00a: "</b> o <b>"
+            }
+        };
+
+        var etape = null;
+
+        function updateLanguage(lang) {
+            currentLang = lang;
+            var dict = I18N[lang];
+
+            $("#language span").removeClass("sel text-grunge-amber font-bold bg-grunge-card").addClass("text-gray-500");
+            $("#lang-" + lang.toLowerCase()).removeClass("text-gray-500").addClass("sel text-grunge-amber font-bold bg-grunge-card");
+
+            $("#title-text").html(`CASANDRA <span class="text-grunge-amber amber-glow">// ${lang}</span>`);
+            $("#form").attr("placeholder", dict.placeholder).val("");
+            
+            $(".preset.astrology").val(dict.astrology);
+            $(".preset.planets").val(dict.planets);
+            $(".preset.days").val(dict.days);
+            $(".preset.months").val(dict.months);
+            $(".preset.animals").val(dict.animals);
+            $(".preset.superheros").val(dict.superheros);
+
+            $("#submit").val(dict.submit);
+            $("#label-max-error").text(dict.maxError);
+            $("#test").val(dict.test);
+            $("#save").val(dict.save);
+            $("#yes").val(dict.yes);
+            $("#no").val(dict.no);
+            $("#retest").val(dict.retest);
+            $("#goback").val(dict.goback);
+
+            $("#result, #testsave, #text, #yesno, #retestgoback").addClass("hidden");
+            updateWordCounter();
+        }
+
+        function cleanAccents(str) {
+            var map = {'á':'a','à':'a','â':'a','ä':'a','å':'a','ã':'a','ç':'c','é':'e','è':'e','ê':'e','ë':'e','í':'i','ì':'i','î':'i','ï':'i','ñ':'n','ó':'o','ò':'o','ô':'o','ö':'o','õ':'o','ø':'o','š':'s','ú':'u','ù':'u','û':'u','ü':'u','ý':'y','ÿ':'y','ž':'z','æ':'ae','œ':'oe'};
+            return str.replace(/[áàâäåãçéèêëíìîïñóòôöõøšúùûüýÿžæœ]/g, function(c) { return map[c] || c; });
+        }
+
+        function updateWordCounter() {
+            var raw = $("#form").val();
+            var words = raw.split(",").map(function(w) { return w.trim(); }).filter(Boolean);
+            $("#lbl-word-count").text(words.length + " palabras");
+        }
+
+        function buildTree(node) {
+            var dict = I18N[currentLang];
+            var wordsList = $(node).find("span").map(function() { return $(this).text(); }).get().join(", ").split(",");
+            wordsList = wordsList.map(function(w) { return w.trim(); }).filter(Boolean);
+            var totalWords = wordsList.length;
+
+            if (totalWords >= 2) {
+                if ($(node).children(".letters").length === 0) {
+                    var letterTpl = $(".letters").html();
+                    $(node).prepend('<div class="letters">' + letterTpl + '</div>');
+                } else {
+                    $(node).children(".letters").find("h").text("0");
+                }
+
+                $.each(wordsList, function(i, word) {
+                    var clean = cleanAccents(word.toLowerCase());
+                    $(node).children(".letters").find("h").each(function() {
+                        var letterClass = $(this).attr("class");
+                        if (clean.indexOf(letterClass) >= 0) {
+                            var cnt = parseInt($(this).text(), 10) + 1;
+                            $(this).html(cnt);
+                        }
+                    });
+                });
+
+                var maxOccur = 0;
+                $(node).children(".letters").find("h").each(function() {
+                    var val = parseInt($(this).text(), 10);
+                    if (val !== totalWords && "used" !== $(this).attr("value")) {
+                        maxOccur = maxOccur < val ? val : maxOccur;
+                    }
+                });
+
+                if (maxOccur === 0) {
+                    $(node).children(".letters").find("h").each(function() {
+                        var val = parseInt($(this).text(), 10);
+                        $(this).attr("value", "notUsed").css("background-color", "transparent");
+                        if (val !== totalWords) maxOccur = maxOccur < val ? val : maxOccur;
+                    });
+                }
+
+                var chosenLetter = "";
+                $(node).children(".letters").find("h").each(function() {
+                    var val = parseInt($(this).text(), 10);
+                    if ("used" !== $(this).attr("value") && val === maxOccur) {
+                        chosenLetter = $(this).attr("class");
+                        $(this).attr("value", "used").css("background-color", "red");
+                        return false;
+                    }
+                });
+
+                var nodeClass = $(node).attr("class");
+                var prevClass = $(node).prev().attr("class");
+
+                if (nodeClass === "grp1" && prevClass === "grp0") {
+                    $(node).css({ width: "calc(100% - 60px)", margin: "0", padding: "0", "background-color": "transparent", cursor: "default", border: "none", "box-shadow": "none" });
+                } else {
+                    $(node).css({ width: "100%", margin: "0", padding: "0", "background-color": "transparent", cursor: "default", border: "none", "box-shadow": "none" });
+                }
+
+                $(node).find("span, .grp0, .grp1, .grp2").remove();
+                $(node).append("<div class='grp0'>" + chosenLetter.toUpperCase() + "</div><div class='grp1'><span></span></div><div class='grp2'><span></span></div>");
+
+                $.each(wordsList, function(i, word) {
+                    var clean = cleanAccents(word.toLowerCase());
+                    if (clean.indexOf(chosenLetter) >= 0) {
+                        var targetGrp2 = $(node).children(".grp2").find("span");
+                        targetGrp2.is(":empty") ? targetGrp2.append(word) : targetGrp2.append(", " + word);
+                    } else {
+                        var targetGrp1 = $(node).children(".grp1").find("span");
+                        targetGrp1.is(":empty") ? targetGrp1.append(word) : targetGrp1.append(", " + word);
+                    }
+                });
+
+                buildTree($(node).children(".grp2"));
+            }
+        }
+
+        $(document).ready(function() {
+            updateLanguage("ES");
+
+            // Input Counter Listener
+            $("#form").on("input", updateWordCounter);
+
+            // Click Language Handlers
+            $("#lang-en").click(function() { updateLanguage("EN"); });
+            $("#lang-fr").click(function() { updateLanguage("FR"); });
+            $("#lang-es").click(function() { updateLanguage("ES"); });
+
+            // Presets Handlers
+            $(".preset").click(function() {
+                var dict = I18N[currentLang];
+                if ($(this).hasClass("astrology")) $("#form").val(dict.astrology_words);
+                if ($(this).hasClass("planets")) $("#form").val(dict.planets_words);
+                if ($(this).hasClass("days")) $("#form").val(dict.days_words);
+                if ($(this).hasClass("months")) $("#form").val(dict.months_words);
+                if ($(this).hasClass("animals")) $("#form").val(dict.animals_words);
+                if ($(this).hasClass("superheros")) $("#form").val(dict.superheros_words);
+                updateWordCounter();
+            });
+
+            // Submit / Build Generator
+            $("#submit").click(function() {
+                var dict = I18N[currentLang];
+                var raw = $("#form").val().toLowerCase();
+                var words = raw.split(",").map(function(w) { return w.trim(); }).filter(Boolean);
+
+                if (words.length < 2) {
+                    alert(dict.alert01);
+                    return;
+                }
+
+                $("#main").children(".letters").find("h").text("0");
+
+                $.each(words, function(i, word) {
+                    var clean = cleanAccents(word);
+                    $("#main").children(".letters").find("h").each(function() {
+                        var letterClass = $(this).attr("class");
+                        if (clean.indexOf(letterClass) >= 0) {
+                            var cnt = parseInt($(this).text(), 10) + 1;
+                            $(this).html(cnt);
+                        }
+                    });
+                });
+
+                var maxVal = 0;
+                $("#main").children(".letters").find("h").each(function() {
+                    var val = parseInt($(this).text(), 10);
+                    if (val !== words.length) maxVal = maxVal < val ? val : maxVal;
+                });
+
+                $("#main").children(".letters").find("h").text("0");
+
+                if (maxVal === 0) {
+                    alert(dict.alert02);
+                    return;
+                }
+
+                $("#result").html("<div class='grp2'><span>" + words.join(", ") + "</span></div>");
+                buildTree($("#result").children(".grp2"));
+
+                var errorMargin = parseInt($("#nonumb").val(), 10);
+                if (errorMargin >= 2) {
+                    $.each($("#result").find(".grp0"), function() {
+                        buildTree($(this).next());
+                        if (errorMargin >= 3) {
+                            $.each($(this).next().find(".grp0"), function() {
+                                buildTree($(this).next());
+                            });
+                        }
+                    });
+                }
+
+                $("#result, #testsave").removeClass("hidden");
+                $("#text, #yesno, #retestgoback").addClass("hidden");
+            });
+
+            // Interactive Node Inspection
+            $("body").on("click", ".grp0, .grp1, .grp2", function() {
+                $("#testsave").removeClass("hidden");
+                $("#text, #yesno").addClass("hidden");
+                if ($(this).hasClass("grp0")) {
+                    buildTree($(this).parent());
+                    return false;
+                }
+                if ($(this).css("background-color") !== "rgba(0, 0, 0, 0)") {
+                    buildTree(this);
+                    return false;
+                }
+            });
+
+            // HTML2Canvas Image Export
+            $("#save").click(function() {
+                var el = document.getElementById("result");
+                html2canvas(el, { backgroundColor: "#070709" }).then(function(canvas) {
+                    var img = canvas.toDataURL("image/png");
+                    var a = document.createElement("a");
+                    a.href = img;
+                    a.download = "casandra-anagrama.png";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+            });
+
+            // Performance Rehearsal Mode
+            $("body").on("click", "#test, #retest", function() {
+                var dict = I18N[currentLang];
+                etape = $("#result").children(".grp2").children(".grp0");
+                var letter = etape.text().toUpperCase();
+                $("#script-display").html(dict.sent01a + letter + dict.sent01b);
+                $("#result, #testsave, #retestgoback").addClass("hidden");
+                $("#text, #yesno").removeClass("hidden");
+            });
+
+            // Script Yes Branch
+            $("#yes").click(function() {
+                var dict = I18N[currentLang];
+                if ($(etape).next().next().children().next().hasClass("grp0")) {
+                    etape = $(etape).next().next().children(".grp0");
+                    var letter = etape.text().toUpperCase();
+                    $("#script-display").html(dict.sent02a + letter + dict.sent02b);
+                } else {
+                    etape = $(etape).next().next().children("span");
+                    var words = etape.text().toUpperCase().replace(/,/g, dict.sent00a);
+                    $("#script-display").html(dict.sent03a + words + dict.sent03b);
+                    $("#yesno").addClass("hidden");
+                    $("#retestgoback").removeClass("hidden");
+                }
+            });
+
+            // Script No Branch
+            $("#no").click(function() {
+                var dict = I18N[currentLang];
+                if ($(etape).next().children().next().hasClass("grp0")) {
+                    etape = $(etape).next().children(".grp0");
+                    var letter = etape.text().toUpperCase();
+                    $("#script-display").html(dict.sent04a + letter + dict.sent04b);
+                } else {
+                    etape = $(etape).next().children("span");
+                    var words = etape.text().toUpperCase().replace(/,/g, dict.sent00a);
+                    $("#script-display").html(dict.sent05a + words + dict.sent05b);
+                    $("#yesno").addClass("hidden");
+                    $("#retestgoback").removeClass("hidden");
+                }
+            });
+
+            // Back to Diagram
+            $("#goback").click(function() {
+                $("#result, #testsave").removeClass("hidden");
+                $("#text, #retestgoback").addClass("hidden");
+            });
+
+            // Keyboard Shortcuts for Live Test Mode
+            window.addEventListener('keydown', function(e) {
+                if ($("#text").hasClass("hidden")) return;
+                if (e.key === 'ArrowRight' || e.key.toLowerCase() === 's' || e.key.toLowerCase() === 'y') {
+                    $("#yes").click();
+                }
+                if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'n') {
+                    $("#no").click();
+                }
+            });
+
+            // Initialize PWA Support
+            setupPWA();
+        });
+
+        // Dynamic PWA Registration via Blob URIs
+        function setupPWA() {
+            var manifestData = {
+                name: "CASANDRA Progressive Anagram",
+                short_name: "CASANDRA",
+                start_url: ".",
+                display: "standalone",
+                background_color: "#070709",
+                theme_color: "#070709",
+                icons: [{
+                    src: "https://placehold.co/192x192/070709/ffb000?text=CASANDRA",
+                    sizes: "192x192",
+                    type: "image/png"
+                }]
+            };
+
+            var manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+            var manifestURL = URL.createObjectURL(manifestBlob);
+            var manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = manifestURL;
+            document.head.appendChild(manifestLink);
+
+            if ('serviceWorker' in navigator) {
+                var swCode = `
+                    const CACHE = 'casandra-anagram-v1';
+                    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE)));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+                `;
+                var swBlob = new Blob([swCode], { type: 'application/javascript' });
+                var swURL = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swURL).catch(function(){});
+            }
+
+            var deferredPrompt = null;
+            window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                deferredPrompt = e;
+                var installBtn = document.getElementById('pwa-install-btn');
+                if (installBtn) {
+                    installBtn.classList.remove('hidden');
+                    installBtn.onclick = function() {
+                        installBtn.classList.add('hidden');
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then(function(choiceResult) {
+                            deferredPrompt = null;
+                        });
+                    };
+                }
+            });
+        }
+    })();
+    </script>
+</body>
+</html>

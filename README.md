@@ -1,3 +1,0 @@
-# Ksandra
-# Ksandra
-# Ksandra
