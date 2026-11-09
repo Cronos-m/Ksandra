@@ -19,7 +19,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    
+    <!-- Favicon Actualizado (Asegúrate de tener icon.png en tu carpeta) -->
+    <link rel="icon" type="image/png" href="icon-512.png">
     
     <!-- Google Fonts for 90s Zine & Typewriter Aesthetic -->
     <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
@@ -59,6 +61,15 @@
             background-size: 20px 20px, 100% 4px;
             color: #d1d5db;
             font-family: 'Special Elite', 'Courier New', monospace;
+        }
+
+        /* Corrección de altura y scroll vertical fluido */
+        html, body {
+            min-height: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto; 
         }
 
         .scanline-overlay {
@@ -231,8 +242,8 @@
                         <span id="label-max-error" class="text-gray-400">Errores máx:</span>
                         <select id="nonumb" class="bg-grunge-card text-white border border-grunge-border px-2 py-1 text-xs focus:outline-none focus:border-grunge-amber">
                             <option value="3">3</option>
-                            <option value="2" selected>2</option>
-                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="1" selected >1</option>
                         </select>
                     </div>
                 </div>
