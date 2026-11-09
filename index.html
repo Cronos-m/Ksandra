@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     
     <!-- PWA & Mobile Meta Tags -->
     <meta name="theme-color" content="#070709">
@@ -19,9 +19,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Favicon Actualizado (Asegúrate de tener icon.png en tu carpeta) -->
-    <link rel="icon" type="image/png" href="icon-512.png">
     
     <!-- Google Fonts for 90s Zine & Typewriter Aesthetic -->
     <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
@@ -52,8 +49,18 @@
     </script>
     
     <style>
-        /* 90s Industrial CRT Scanline Overlay */
+        /* SCROLL FIXES FOR HTML & BODY */
+        html {
+            height: -webkit-fill-available;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
         body {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow-x: hidden;
+            overflow-y: auto;
             background-color: #070709;
             background-image: 
                 radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0),
@@ -61,25 +68,18 @@
             background-size: 20px 20px, 100% 4px;
             color: #d1d5db;
             font-family: 'Special Elite', 'Courier New', monospace;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* Corrección de altura y scroll vertical fluido */
-        html, body {
-            min-height: 100%;
-            height: auto;
-            margin: 0;
-            padding: 0;
-            overflow-y: auto; 
-        }
-
+        /* 90s Industrial CRT Scanline Overlay */
         .scanline-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             background-size: 100% 3px, 6px 100%;
-            pointer-events: none;
+            pointer-events: none !important; /* Touch-through fix */
             z-index: 99;
-            opacity: 0.6;
+            opacity: 0.5;
         }
 
         /* Zine Brutalist Borders & Buttons */
@@ -167,18 +167,18 @@
 
         .letters { display: none; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #070709; }
         ::-webkit-scrollbar-thumb { background: #2a2d3d; border: 1px solid #ffb000; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-grunge-amber selection:text-black">
+<body class="selection:bg-grunge-amber selection:text-black">
     
     <div class="scanline-overlay"></div>
 
     <!-- Header Section -->
-    <header class="border-b-2 border-grunge-border bg-black/90 backdrop-blur sticky top-0 z-50">
+    <header class="border-b-2 border-grunge-border bg-black/95 backdrop-blur sticky top-0 z-50">
         <div class="max-w-4xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 bg-black border-2 border-grunge-amber flex items-center justify-center text-grunge-amber text-xl shadow-[3px_3px_0px_#ffb000]">
@@ -195,7 +195,7 @@
             <!-- Controls: Install PWA & Language Switcher -->
             <div class="flex items-center gap-2 sm:gap-3">
                 <button id="pwa-install-btn" class="hidden grunge-btn px-2.5 py-1 text-xs text-grunge-neon border-grunge-neon font-mono flex items-center gap-1">
-                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">INSTALL</span>
+                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">INSTALAR</span>
                 </button>
 
                 <div id="language" class="flex bg-black p-1 border border-grunge-border font-mono text-xs">
@@ -207,8 +207,8 @@
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-4xl w-full mx-auto p-3 sm:p-4 flex-grow space-y-6">
+    <!-- Main Container con scroll natural -->
+    <main class="max-w-4xl w-full mx-auto p-3 sm:p-4 pb-16 space-y-6">
 
         <!-- Input & Form Box -->
         <div id="container_form" class="grunge-box p-4 sm:p-6 space-y-4">
@@ -220,7 +220,7 @@
                         <span>Listado de Palabras</span>
                         <span id="lbl-word-count" class="text-grunge-amber">0 palabras</span>
                     </label>
-                    <textarea id="form" placeholder="Escribe varias palabras separadas por comas..." class="w-full h-36 md:h-48 bg-black border-2 border-grunge-border p-3 text-sm text-grunge-neon font-mono focus:outline-none focus:border-grunge-amber placeholder:text-gray-700 resize-none"></textarea>
+                    <textarea id="form" placeholder="Escribe varias palabras separadas por comas..." class="w-full h-36 md:h-48 bg-black border-2 border-grunge-border p-3 text-sm text-grunge-neon font-mono focus:outline-none focus:border-grunge-amber placeholder:text-gray-700 resize-none overflow-y-auto"></textarea>
                 </div>
 
                 <!-- Presets & Parameters Grid -->
@@ -242,8 +242,8 @@
                         <span id="label-max-error" class="text-gray-400">Errores máx:</span>
                         <select id="nonumb" class="bg-grunge-card text-white border border-grunge-border px-2 py-1 text-xs focus:outline-none focus:border-grunge-amber">
                             <option value="3">3</option>
-                            <option value="2">2</option>
-                            <option value="1" selected >1</option>
+                            <option value="2" selected>2</option>
+                            <option value="1">1</option>
                         </select>
                     </div>
                 </div>
@@ -267,8 +267,8 @@
                 <h class="y">0</h><h class="z">0</h>
             </div>
             
-            <!-- Resulting Tree Output -->
-            <div id="result" class="grunge-box p-4 hidden overflow-x-auto max-w-full touch-pan-x"></div>
+            <!-- Resulting Tree Output con scroll bidireccional -->
+            <div id="result" class="grunge-box p-4 hidden overflow-x-auto overflow-y-auto max-w-full max-h-[70vh] touch-pan-x touch-pan-y"></div>
             <div class="clear"></div>
             
             <!-- Control Buttons after Generation -->
@@ -626,6 +626,11 @@
 
                 $("#result, #testsave").removeClass("hidden");
                 $("#text, #yesno, #retestgoback").addClass("hidden");
+
+                // Scroll automático suave hacia los resultados generados
+                $('html, body').animate({
+                    scrollTop: $("#result").offset().top - 80
+                }, 500);
             });
 
             // Interactive Node Inspection
@@ -664,6 +669,10 @@
                 $("#script-display").html(dict.sent01a + letter + dict.sent01b);
                 $("#result, #testsave, #retestgoback").addClass("hidden");
                 $("#text, #yesno").removeClass("hidden");
+
+                $('html, body').animate({
+                    scrollTop: $("#text").offset().top - 80
+                }, 400);
             });
 
             // Script Yes Branch
