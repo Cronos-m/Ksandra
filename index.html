@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    
+
     <!-- PWA & Mobile Meta Tags -->
     <meta name="theme-color" content="#070709">
     <meta name="mobile-web-app-capable" content="yes">
@@ -11,18 +11,19 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CASANDRA">
     <meta name="description" content="CASANDRA - Generador Underground de Anagramas Progresivos - PWA para Mentalismo e Ilusionismo">
-    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
     <title>CASANDRA // MIND-NOIR 90s PWA</title>
-    
-    <!-- Dependencies: Tailwind CSS, jQuery & html2canvas -->
+
+    <!-- Tailwind (única dependencia bloqueante). jQuery, Font Awesome y html2canvas ya no se cargan al inicio -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Google Fonts for 90s Zine & Typewriter Aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -47,7 +48,7 @@
             }
         }
     </script>
-    
+
     <style>
         /* SCROLL FIXES FOR HTML & BODY */
         html {
@@ -62,7 +63,7 @@
             overflow-x: hidden;
             overflow-y: auto;
             background-color: #070709;
-            background-image: 
+            background-image:
                 radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0),
                 linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 50%, rgba(0, 0, 0, 0.5) 51%);
             background-size: 20px 20px, 100% 4px;
@@ -109,8 +110,17 @@
             box-shadow: 1px 1px 0px #000;
         }
 
+        .grunge-btn:focus-visible,
+        select:focus-visible,
+        #language span:focus-visible {
+            outline: 2px solid #ffb000;
+            outline-offset: 2px;
+        }
+
         .amber-glow { text-shadow: 0 0 8px rgba(255, 176, 0, 0.6); }
         .green-glow { text-shadow: 0 0 8px rgba(57, 255, 20, 0.6); }
+
+        .icon { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; }
 
         /* Anagram Tree Nodes Styling */
         .grp0 {
@@ -129,6 +139,7 @@
             cursor: pointer;
             font-size: 32px;
             text-align: center;
+            user-select: none;
         }
         .grp0:hover {
             background-color: #39ff14;
@@ -142,7 +153,6 @@
             border: 2px solid #2a2d3d;
             box-shadow: 3px 3px 0px #000;
             float: left;
-            cursor: pointer;
             font-size: 15px;
             line-height: 1.4;
         }
@@ -155,17 +165,26 @@
             border: 2px solid #2a2d3d;
             box-shadow: 3px 3px 0px #000;
             clear: both;
-            cursor: pointer;
             font-size: 15px;
             line-height: 1.4;
         }
 
-        .grp1:hover, .grp2:hover {
+        /* Nodo ya desplegado: solo contenedor, sin caja propia */
+        .grp1.open, .grp2.open {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        .grp1.open { width: calc(100% - 60px); }
+
+        /* Lista final de palabras (hoja). Solo se puede abrir si aún se puede dividir */
+        .leaf.expandable { cursor: pointer; }
+        .leaf:hover {
             border-color: #39ff14;
             color: #39ff14;
         }
-
-        .letters { display: none; }
 
         /* Custom Scrollbar Styling */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -174,7 +193,7 @@
     </style>
 </head>
 <body class="selection:bg-grunge-amber selection:text-black">
-    
+
     <div class="scanline-overlay"></div>
 
     <!-- Header Section -->
@@ -182,7 +201,7 @@
         <div class="max-w-4xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 bg-black border-2 border-grunge-amber flex items-center justify-center text-grunge-amber text-xl shadow-[3px_3px_0px_#ffb000]">
-                    <i class="fa-solid fa-brain"></i>
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.6C11.3 3.2 9.5 2.8 8.3 3.7 6.7 3.5 5.3 4.9 5.6 6.5 4 7.1 3.5 9.1 4.4 10.4 3.6 11.7 4 13.5 5.3 14.3 5.2 16 6.7 17.3 8.3 17.1 9.1 18.6 10.9 19 12 18.1Z"/><path d="M12 4.6C12.7 3.2 14.5 2.8 15.7 3.7 17.3 3.5 18.7 4.9 18.4 6.5 20 7.1 20.5 9.1 19.6 10.4 20.4 11.7 20 13.5 18.7 14.3 18.8 16 17.3 17.3 15.7 17.1 14.9 18.6 13.1 19 12 18.1Z"/><path d="M8.2 9.4c1 0 1.9.5 2.3 1.4M8.4 13.6c1.1.1 1.8-.4 2.2-1.3M15.8 9.4c-1 0-1.9.5-2.3 1.4M15.6 13.6c-1.1.1-1.8-.4-2.2-1.3M12 18.1v2.9"/></svg>
                 </div>
                 <div>
                     <h1 id="title-text" class="text-base sm:text-xl font-bold tracking-widest text-white flex items-center gap-2 font-mono">
@@ -194,14 +213,15 @@
 
             <!-- Controls: Install PWA & Language Switcher -->
             <div class="flex items-center gap-2 sm:gap-3">
-                <button id="pwa-install-btn" class="hidden grunge-btn px-2.5 py-1 text-xs text-grunge-neon border-grunge-neon font-mono flex items-center gap-1">
-                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">INSTALAR</span>
+                <button id="pwa-install-btn" type="button" class="hidden grunge-btn px-2.5 py-1 text-xs text-grunge-neon border-grunge-neon font-mono flex items-center gap-1">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+                    <span class="hidden sm:inline" data-i18n="install">INSTALAR</span>
                 </button>
 
                 <div id="language" class="flex bg-black p-1 border border-grunge-border font-mono text-xs">
-                    <span id="lang-en" class="px-2 py-1 cursor-pointer text-gray-500 hover:text-white">EN</span>
-                    <span id="lang-fr" class="px-2 py-1 cursor-pointer text-gray-500 hover:text-white">FR</span>
-                    <span id="lang-es" class="px-2 py-1 cursor-pointer text-grunge-amber font-bold bg-grunge-card">ES</span>
+                    <span data-lang="EN" class="px-2 py-1 cursor-pointer text-gray-500 hover:text-white">EN</span>
+                    <span data-lang="FR" class="px-2 py-1 cursor-pointer text-gray-500 hover:text-white">FR</span>
+                    <span data-lang="ES" class="px-2 py-1 cursor-pointer text-grunge-amber font-bold bg-grunge-card">ES</span>
                 </div>
             </div>
         </div>
@@ -212,12 +232,12 @@
 
         <!-- Input & Form Box -->
         <div id="container_form" class="grunge-box p-4 sm:p-6 space-y-4">
-            
+
             <div class="flex flex-col md:flex-row gap-4">
                 <!-- Text Area Input -->
                 <div class="w-full md:w-7/12">
                     <label for="form" class="block text-xs font-mono uppercase text-gray-400 mb-1 flex justify-between">
-                        <span>Listado de Palabras</span>
+                        <span data-i18n="listLabel">Listado de Palabras</span>
                         <span id="lbl-word-count" class="text-grunge-amber">0 palabras</span>
                     </label>
                     <textarea id="form" placeholder="Escribe varias palabras separadas por comas..." class="w-full h-36 md:h-48 bg-black border-2 border-grunge-border p-3 text-sm text-grunge-neon font-mono focus:outline-none focus:border-grunge-amber placeholder:text-gray-700 resize-none overflow-y-auto"></textarea>
@@ -226,25 +246,37 @@
                 <!-- Presets & Parameters Grid -->
                 <div id="presets" class="w-full md:w-5/12 flex flex-col justify-between space-y-3">
                     <div>
-                        <span class="block text-xs font-mono uppercase text-gray-400 mb-1">Presets Rápidos</span>
+                        <span class="block text-xs font-mono uppercase text-gray-400 mb-1" data-i18n="presetsLabel">Presets Rápidos</span>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-1.5 font-mono">
-                            <input type="button" class="preset astrology grunge-btn py-2 text-xs text-gray-300" value="ZODÍACO">
-                            <input type="button" class="preset planets grunge-btn py-2 text-xs text-gray-300" value="PLANETAS">
-                            <input type="button" class="preset days grunge-btn py-2 text-xs text-gray-300" value="DÍAS">
-                            <input type="button" class="preset months grunge-btn py-2 text-xs text-gray-300" value="MESES">
-                            <input type="button" class="preset animals grunge-btn py-2 text-xs text-gray-300" value="ANIMALES">
-                            <input type="button" class="preset superheros grunge-btn py-2 text-xs text-gray-300" value="SUPERHÉROES">
+                            <input type="button" data-p="astrology" class="preset grunge-btn py-2 text-xs text-gray-300" value="ZODÍACO">
+                            <input type="button" data-p="planets" class="preset grunge-btn py-2 text-xs text-gray-300" value="PLANETAS">
+                            <input type="button" data-p="days" class="preset grunge-btn py-2 text-xs text-gray-300" value="DÍAS">
+                            <input type="button" data-p="months" class="preset grunge-btn py-2 text-xs text-gray-300" value="MESES">
+                            <input type="button" data-p="animals" class="preset grunge-btn py-2 text-xs text-gray-300" value="ANIMALES">
+                            <input type="button" data-p="countries" class="preset grunge-btn py-2 text-xs text-gray-300" value="PAÍSES LATAM">
                         </div>
                     </div>
 
-                    <!-- Max Error Selector -->
-                    <div id="nonumb_container" class="bg-black border border-grunge-border p-2 text-xs font-mono flex items-center justify-between">
-                        <span id="label-max-error" class="text-gray-400">Errores máx:</span>
-                        <select id="nonumb" class="bg-grunge-card text-white border border-grunge-border px-2 py-1 text-xs focus:outline-none focus:border-grunge-amber">
-                            <option value="3">3</option>
-                            <option value="2">2</option>
-                            <option value="1" selected >1</option>
-                        </select>
+                    <div class="space-y-2">
+                        <!-- Max Error Selector -->
+                        <div id="nonumb_container" class="bg-black border border-grunge-border p-2 text-xs font-mono flex items-center justify-between">
+                            <label for="nonumb" id="label-max-error" class="text-gray-400" data-i18n="maxError">Errores máx:</label>
+                            <select id="nonumb" class="bg-grunge-card text-white border border-grunge-border px-2 py-1 text-xs focus:outline-none focus:border-grunge-amber">
+                                <option value="1" selected>1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+
+                        <!-- Optimization priority -->
+                        <div id="prio_container" class="bg-black border border-grunge-border p-2 text-xs font-mono flex items-center justify-between gap-2">
+                            <label for="prio" class="text-gray-400" data-i18n="priority">Prioridad:</label>
+                            <select id="prio" class="bg-grunge-card text-white border border-grunge-border px-2 py-1 text-xs focus:outline-none focus:border-grunge-amber min-w-0">
+                                <option value="questions">Menos preguntas</option>
+                                <option value="balanced" selected>Equilibrado</option>
+                                <option value="options">Menos opciones</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -255,24 +287,17 @@
 
         <!-- Output & Performance Section -->
         <div id="main" class="space-y-4">
-            
-            <!-- Hidden Counters Data -->
-            <div class="letters">
-                <h class="a">0</h><h class="b">0</h><h class="c">0</h><h class="d">0</h>
-                <h class="e">0</h><h class="f">0</h><h class="g">0</h><h class="h">0</h>
-                <h class="i">0</h><h class="j">0</h><h class="k">0</h><h class="l">0</h>
-                <h class="m">0</h><h class="n">0</h><h class="o">0</h><h class="p">0</h>
-                <h class="q">0</h><h class="r">0</h><h class="s">0</h><h class="t">0</h>
-                <h class="u">0</h><h class="v">0</h><h class="w">0</h><h class="x">0</h>
-                <h class="y">0</h><h class="z">0</h>
-            </div>
-            
+
             <!-- Resulting Tree Output con scroll bidireccional -->
             <div id="result" class="grunge-box p-4 hidden overflow-x-auto overflow-y-auto max-w-full max-h-[70vh] touch-pan-x touch-pan-y"></div>
             <div class="clear"></div>
-            
+
             <!-- Control Buttons after Generation -->
-            <div class="buttons hidden" id="testsave">
+            <div class="buttons hidden space-y-3" id="testsave">
+                <div id="stats" class="flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs font-mono text-gray-400" aria-live="polite">
+                    <span id="stat-q"></span>
+                    <span id="stat-o"></span>
+                </div>
                 <div class="grid grid-cols-2 gap-3">
                     <input type="button" id="test" class="grunge-btn py-3 text-grunge-amber border-grunge-amber text-xs font-bold" value="PROBAR">
                     <input type="button" id="save" class="grunge-btn py-3 text-gray-300 text-xs font-bold" value="GUARDAR IMAGEN">
@@ -281,10 +306,10 @@
 
             <!-- Performance Test Script Box -->
             <div id="text" class="grunge-box p-6 hidden text-center space-y-4 border-2 border-grunge-amber">
-                <div class="text-xs text-gray-500 font-mono uppercase tracking-widest border-b border-grunge-border pb-2">Guión de Mentalismo en Vivo</div>
-                <div id="script-display" class="text-lg sm:text-xl font-mono text-white leading-relaxed my-4"></div>
+                <div class="text-xs text-gray-500 font-mono uppercase tracking-widest border-b border-grunge-border pb-2" data-i18n="scriptTitle">Guión de Mentalismo en Vivo</div>
+                <div id="script-display" class="text-lg sm:text-xl font-mono text-white leading-relaxed my-4" aria-live="polite"></div>
             </div>
-            
+
             <!-- Live Performance Yes / No Buttons -->
             <div class="buttons hidden" id="yesno">
                 <div class="grid grid-cols-2 gap-4">
@@ -292,7 +317,7 @@
                     <input type="button" id="yes" class="grunge-btn py-4 text-grunge-neon border-grunge-neon font-bold text-lg" value="SÍ">
                 </div>
             </div>
-            
+
             <!-- Retest & Back Buttons -->
             <div class="buttons hidden" id="retestgoback">
                 <div class="grid grid-cols-2 gap-3">
@@ -311,12 +336,217 @@
 
     <!-- JavaScript & PWA Core Logic -->
     <script>
-    (function() {
-        var currentLang = "ES";
+    (function () {
+        'use strict';
 
+        /* ENGINE:START */
+        var Engine = (function () {
+            'use strict';
+
+            var SPECIAL = { 'ß': 'ss', 'æ': 'ae', 'œ': 'oe', 'ø': 'o', 'ł': 'l', 'đ': 'd' };
+
+            // Quita tildes/diacríticos y pasa a minúsculas ("Ñandú" -> "nandu")
+            function clean(str) {
+                return str.toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[ßæœøłđ]/g, function (c) { return SPECIAL[c]; });
+            }
+
+            // Máscara de 26 bits con las letras a-z presentes en la palabra
+            function letterMask(word) {
+                var s = clean(word), m = 0;
+                for (var i = 0; i < s.length; i++) {
+                    var c = s.charCodeAt(i) - 97;
+                    if (c >= 0 && c < 26) m |= 1 << c;
+                }
+                return m;
+            }
+
+            // Peso (en "preguntas") de cada opción sobrante en una lista final.
+            //  questions: tolera listas más largas a cambio de menos letras
+            //  balanced:  compromiso por defecto
+            //  options:   prácticamente siempre una única palabra al final
+            var PRIORITY = { questions: 1, balanced: 3, options: 12 };
+
+            var FULL_SEARCH_LIMIT = 40000;   // nº de estados explorados con búsqueda completa
+            var HARD_SEARCH_LIMIT = 120000;  // a partir de aquí solo se explora la mejor opción
+            var EPS = 1e-9;
+
+            /**
+             * Crea un resolvedor para una lista de palabras.
+             * words: array de strings (únicas)  | lambda: peso de las opciones sobrantes
+             */
+            function createSolver(words, lambda) {
+                var n = words.length;
+                var masks = words.map(letterMask);
+                var memo = new Map();
+                var states = 0;
+                var chunkCount = Math.ceil(n / 15);
+
+                var leafCost = function (m) { return lambda * m * (m - 1); };
+                var est = function (m) { return m > 1 ? m * Math.log2(m) : 0; };
+
+                function key(S, e, must) {
+                    var ch = new Array(chunkCount).fill(0);
+                    for (var i = 0; i < S.length; i++) ch[(S[i] / 15) | 0] |= 1 << (S[i] % 15);
+                    return e + (must ? 's' : 'n') + String.fromCharCode.apply(null, ch);
+                }
+
+                // Letras que separan S (están en algunas palabras pero no en todas)
+                function candidateMask(S) {
+                    var or = 0, and = 0x3ffffff;
+                    for (var i = 0; i < S.length; i++) { or |= masks[S[i]]; and &= masks[S[i]]; }
+                    return or & ~and;
+                }
+
+                function split(S, k) {
+                    var Y = [], N = [];
+                    for (var i = 0; i < S.length; i++) (masks[S[i]] >> k & 1 ? Y : N).push(S[i]);
+                    return { Y: Y, N: N };
+                }
+
+                // Particiones distintas; letters = todas las letras que producen esa misma partición
+                function partitions(S) {
+                    var cand = candidateMask(S), out = [], seen = new Map();
+                    for (var k = 0; k < 26; k++) {
+                        if (!(cand >> k & 1)) continue;
+                        var sp = split(S, k), sig = key(sp.Y, 0, false);
+                        if (seen.has(sig)) { seen.get(sig).letters.push(k); continue; }
+                        var p = { letters: [k], Y: sp.Y, N: sp.N };
+                        seen.set(sig, p);
+                        out.push(p);
+                    }
+                    return out;
+                }
+
+                function branchCost(p, e) {
+                    var ry = best(p.Y, e, false);
+                    var rn = e > 0 ? best(p.N, e - 1, false) : { cost: leafCost(p.N.length), depth: 0 };
+                    return { ry: ry, rn: rn, depth: 1 + Math.max(ry.depth, rn.depth) };
+                }
+
+                // Mejor decisión para el grupo S con e "noes" aún refinables.
+                // Devuelve { cost, depth, k }  (k = -1 -> lista final de opciones)
+                function best(S, e, mustSplit) {
+                    var size = S.length;
+                    if (size === 1) return { cost: 0, depth: 0, k: -1 };
+                    var id = key(S, e, mustSplit);
+                    var hit = memo.get(id);
+                    if (hit) return hit;
+
+                    var parts = partitions(S), res = null;
+
+                    if (parts.length) {
+                        states++;
+                        if (states > FULL_SEARCH_LIMIT) {
+                            // Búsqueda acotada: solo las partes más prometedoras según una estimación barata
+                            var keep = states > HARD_SEARCH_LIMIT ? 1 : 3;
+                            parts = parts.map(function (p) {
+                                var h = est(p.Y.length) + (e > 0 ? est(p.N.length) : leafCost(p.N.length));
+                                return { p: p, h: h };
+                            }).sort(function (a, b) { return a.h - b.h; })
+                              .slice(0, keep).map(function (x) { return x.p; });
+                        }
+                        for (var i = 0; i < parts.length; i++) {
+                            var b = branchCost(parts[i], e);
+                            var cost = size + b.ry.cost + b.rn.cost;
+                            if (!res || cost < res.cost - EPS || (cost < res.cost + EPS && b.depth < res.depth)) {
+                                res = { cost: cost, depth: b.depth, k: parts[i].letters[0] };
+                            }
+                        }
+                    }
+                    // Parar aquí (lista de opciones) solo si compensa estrictamente
+                    if (!mustSplit && (!res || leafCost(size) < res.cost - EPS)) {
+                        res = { cost: leafCost(size), depth: 0, k: -1 };
+                    }
+                    if (!res) res = { cost: leafCost(size), depth: 0, k: -1 }; // sin letras separadoras
+                    memo.set(id, res);
+                    return res;
+                }
+
+                var nextId = 0;
+                function leaf(S, e, forced) {
+                    return { id: nextId++, S: S, e: e, letter: null, yes: null, no: null, forced: !!forced };
+                }
+
+                // Construye el árbol completo de decisión
+                function build(S, e, mustSplit, forced) {
+                    var r = best(S, e, mustSplit);
+                    var node = leaf(S, e, forced);
+                    if (r.k < 0) return node;
+                    return fill(node, r.k);
+                }
+
+                function fill(node, k) {
+                    var sp = split(node.S, k);
+                    node.letter = String.fromCharCode(97 + k);
+                    node.yes = build(sp.Y, node.e, false, false);
+                    node.no = node.e > 0 ? build(sp.N, node.e - 1, false, false) : leaf(sp.N, 0, true);
+                    return node;
+                }
+
+                // Letras alternativas ordenadas de mejor a peor para un nodo (incluye letras equivalentes)
+                function rank(S, e) {
+                    var cand = candidateMask(S), out = [];
+                    for (var k = 0; k < 26; k++) {
+                        if (!(cand >> k & 1)) continue;
+                        var sp = split(S, k);
+                        var ry = best(sp.Y, e, false);
+                        var rn = e > 0 ? best(sp.N, e - 1, false) : { cost: leafCost(sp.N.length), depth: 0 };
+                        out.push({ k: k, cost: S.length + ry.cost + rn.cost, depth: 1 + Math.max(ry.depth, rn.depth) });
+                    }
+                    out.sort(function (a, b) { return (a.cost - b.cost) || (a.depth - b.depth) || (a.k - b.k); });
+                    return out.map(function (o) { return o.k; });
+                }
+
+                return {
+                    words: words,
+                    canSplit: function (S) { return candidateMask(S) !== 0; },
+                    root: function (e) {
+                        var all = words.map(function (_, i) { return i; });
+                        return build(all, e, true, false);
+                    },
+                    expand: function (node) {          // abre una lista final y la divide mejor posible
+                        var r = build(node.S, node.e, true, false);
+                        node.letter = r.letter; node.yes = r.yes; node.no = r.no; node.forced = false;
+                        return node;
+                    },
+                    retarget: function (node) {        // siguiente letra alternativa para un nodo ya abierto
+                        var order = rank(node.S, node.e);
+                        var cur = node.letter.charCodeAt(0) - 97;
+                        var next = order[(order.indexOf(cur) + 1) % order.length];
+                        return fill(node, next);
+                    },
+                    stats: function () { return { states: states }; }
+                };
+            }
+
+            // Métricas de un árbol: preguntas (letras nombradas hasta la lista final) y opciones finales
+            function metrics(root) {
+                var total = 0, sumQ = 0, sumO = 0, maxQ = 0, maxO = 0;
+                (function walk(node, depth) {
+                    if (!node.letter) {
+                        var m = node.S.length;
+                        total += m; sumQ += depth * m; sumO += m * m;
+                        if (depth > maxQ) maxQ = depth;
+                        if (m > maxO) maxO = m;
+                        return;
+                    }
+                    walk(node.yes, depth + 1);
+                    walk(node.no, depth + 1);
+                })(root, 0);
+                return { avgQ: sumQ / total, maxQ: maxQ, avgO: sumO / total, maxO: maxO };
+            }
+
+            return { clean: clean, letterMask: letterMask, createSolver: createSolver, metrics: metrics, PRIORITY: PRIORITY };
+        })();
+        /* ENGINE:END */
+
+        /* ============================================================
+           TEXTOS (i18n)
+           ============================================================ */
         var I18N = {
             EN: {
-                title: "CASANDRA Anagram Generator",
                 placeholder: "Put several words separated by commas...",
                 astrology: "ASTROLOGY",
                 astrology_words: "Aries, Taurus, Gemini, Cancer, Leo, Virgo, Libra, Scorpio, Sagittarius, Capricorn, Aquarius, Pisces",
@@ -328,8 +558,8 @@
                 months_words: "January, February, March, April, May, June, July, August, September, October, November, December",
                 animals: "ANIMALS",
                 animals_words: "Dog, Cat, Bird, Fish, Mouse, Hamster, Rabbit, Turtle",
-                superheros: "SUPERHEROES",
-                superheros_words: "Aquaman, Batman, Catwoman, Flash, Green Lantern, Superman, Ant-Man, Black Panther, Blade, Captain America, Captain Marvel, Daredevil, Deadpool, Doctor Strange, Hulk, Iron Man, Kick-Ass, Spider-Man, Thor",
+                countries: "LATAM COUNTRIES",
+                countries_words: "Argentina, Bolivia, Brazil, Chile, Colombia, Costa Rica, Cuba, Ecuador, El Salvador, Guatemala, Haiti, Honduras, Mexico, Nicaragua, Panama, Paraguay, Peru, Dominican Republic, Uruguay, Venezuela",
                 submit: "GENERATE",
                 maxError: "Maximum error count: ",
                 test: "TEST REHEARSAL",
@@ -340,6 +570,21 @@
                 goback: "SEE THE ANAGRAM",
                 alert01: "There are not enough words!",
                 alert02: "The words have the same letters!",
+                alert03: "Could not create the image (are you offline?)",
+                listLabel: "Word list",
+                presetsLabel: "Quick presets",
+                word1: "word",
+                words: "words",
+                scriptTitle: "Live mentalism script",
+                install: "INSTALL",
+                priority: "Priority: ",
+                prio_questions: "Fewer questions",
+                prio_balanced: "Balanced",
+                prio_options: "Fewer options",
+                statQ: "Questions",
+                statO: "Final options",
+                avg: "avg",
+                max: "max",
                 sent01a: "« Please focus on each letter of your word.<br />[...]<br />I'm seeing an <b class='text-grunge-amber text-2xl font-mono'>",
                 sent01b: "</b>... »",
                 sent02a: "« ...and an <b class='text-grunge-amber text-2xl font-mono'>",
@@ -353,7 +598,6 @@
                 sent00a: "</b> or <b>"
             },
             FR: {
-                title: "CASANDRA Générateur d'Anagramme",
                 placeholder: "Écrivez plusieurs mots séparés entre eux par une virgule...",
                 astrology: "ASTROLOGIE",
                 astrology_words: "Bélier, Taureau, Gémeaux, Cancer, Lion, Vierge, Balance, Scorpion, Sagittaire, Capricorne, Verseau, Poissons",
@@ -365,8 +609,8 @@
                 months_words: "Janvier, Février, Mars, Avril, Mai, Juin, Juillet, Aout, Septembre, Octobre, Novembre, Décembre",
                 animals: "ANIMAUX",
                 animals_words: "Chien, Chat, Oiseau, Poisson, Souris, Hamster, Lapin, Tortue",
-                superheros: "SUPER-HÉROS",
-                superheros_words: "Aquaman, Batman, Catwoman, Flash, Green Lantern, Superman, Ant-Man, Black Panther, Blade, Captain America, Captain Marvel, Daredevil, Deadpool, Doctor Strange, Hulk, Iron Man, Kick-Ass, Spider-Man, Thor",
+                countries: "PAYS LATAM",
+                countries_words: "Argentine, Bolivie, Brésil, Chili, Colombie, Costa Rica, Cuba, Équateur, Salvador, Guatemala, Haïti, Honduras, Mexique, Nicaragua, Panama, Paraguay, Pérou, République dominicaine, Uruguay, Venezuela",
                 submit: "GÉNÉRER",
                 maxError: "Nombre d'erreurs max : ",
                 test: "TESTER",
@@ -377,6 +621,21 @@
                 goback: "VOIR L'ANAGRAMME",
                 alert01: "Il n'y a pas assez de mots !",
                 alert02: "Les mots ont les mêmes lettres !",
+                alert03: "Impossible de créer l'image (hors ligne ?)",
+                listLabel: "Liste de mots",
+                presetsLabel: "Préréglages rapides",
+                word1: "mot",
+                words: "mots",
+                scriptTitle: "Script de mentalisme en direct",
+                install: "INSTALLER",
+                priority: "Priorité : ",
+                prio_questions: "Moins de questions",
+                prio_balanced: "Équilibré",
+                prio_options: "Moins d'options",
+                statQ: "Questions",
+                statO: "Options finales",
+                avg: "moy.",
+                max: "max.",
                 sent01a: "« Concentre-toi sur chacune des lettres de ton mot.<br />[...]<br />Je vois un <b class='text-grunge-amber text-2xl font-mono'>",
                 sent01b: "</b>... »",
                 sent02a: "« ...et un <b class='text-grunge-amber text-2xl font-mono'>",
@@ -390,7 +649,6 @@
                 sent00a: "</b> ou <b>"
             },
             ES: {
-                title: "CASANDRA Generador Anagrama Progresivo",
                 placeholder: "Escribe varias palabras separadas por comas...",
                 astrology: "ZODÍACO",
                 astrology_words: "Aries, Tauro, Geminis, Cancer, Leo, Virgo, Libra, Escorpio, Sagitario, Capricornio, Acuario, Piscis",
@@ -402,8 +660,8 @@
                 months_words: "Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre",
                 animals: "ANIMALES",
                 animals_words: "Perro, Gato, Pajaro, Pez, Raton, Hamster, Conejo, Tortuga",
-                superheros: "SUPERHÉROES",
-                superheros_words: "Aquaman, Batman, Catwoman, Flash, Linterna Verde, Superman, Hombre Hormiga, Pantera Negra, Blade, Capitan America, Capitan Marvel, Daredevil, Deadpool, Doctor Strange, Hulk, Iron Man, Kick-Ass, Spider-Man, Thor",
+                countries: "PAÍSES LATAM",
+                countries_words: "Argentina, Bolivia, Brasil, Chile, Colombia, Costa Rica, Cuba, Ecuador, El Salvador, Guatemala, Haití, Honduras, México, Nicaragua, Panamá, Paraguay, Perú, República Dominicana, Uruguay, Venezuela",
                 submit: "GENERAR",
                 maxError: "Errores máximos: ",
                 test: "PROBAR",
@@ -414,6 +672,21 @@
                 goback: "VER ANAGRAMA",
                 alert01: "¡No hay suficientes palabras!",
                 alert02: "¡Las palabras contienen exactamente las mismas letras!",
+                alert03: "No se pudo crear la imagen (¿sin conexión?)",
+                listLabel: "Listado de palabras",
+                presetsLabel: "Presets rápidos",
+                word1: "palabra",
+                words: "palabras",
+                scriptTitle: "Guión de mentalismo en vivo",
+                install: "INSTALAR",
+                priority: "Prioridad: ",
+                prio_questions: "Menos preguntas",
+                prio_balanced: "Equilibrado",
+                prio_options: "Menos opciones",
+                statQ: "Preguntas",
+                statO: "Opciones finales",
+                avg: "prom.",
+                max: "máx.",
                 sent01a: "« Por favor concéntrate en cada una de las letras de tu palabra.<br />[...]<br />Veo una letra... una <b class='text-grunge-amber text-2xl font-mono'>",
                 sent01b: "</b>... »",
                 sent02a: "« ...y también una <b class='text-grunge-amber text-2xl font-mono'>",
@@ -428,358 +701,310 @@
             }
         };
 
-        var etape = null;
+        /* ============================================================
+           ESTADO Y UTILIDADES
+           ============================================================ */
+        var lang = 'ES';
+        var solver = null;      // resolvedor de la lista actual
+        var root = null;        // árbol de decisión (datos, no DOM)
+        var current = null;     // nodo actual durante el modo "Probar"
+        var h2cPromise = null;
+        var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        function updateLanguage(lang) {
-            currentLang = lang;
-            var dict = I18N[lang];
+        function $(id) { return document.getElementById(id); }
+        function dict() { return I18N[lang]; }
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+        function setHidden(ids, hidden) {
+            ids.split(' ').forEach(function (id) { $(id).classList.toggle('hidden', hidden); });
+        }
+        function scrollToEl(el) {
+            var y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+            window.scrollTo({ top: y, behavior: reduceMotion ? 'auto' : 'smooth' });
+        }
 
-            $("#language span").removeClass("sel text-grunge-amber font-bold bg-grunge-card").addClass("text-gray-500");
-            $("#lang-" + lang.toLowerCase()).removeClass("text-gray-500").addClass("sel text-grunge-amber font-bold bg-grunge-card");
+        // "a, b; c" / saltos de línea -> lista sin vacíos ni repetidos (ignora mayúsculas y tildes)
+        function parseWords(raw) {
+            var seen = Object.create(null), out = [];
+            raw.split(/[,;\n]+/).forEach(function (w) {
+                w = w.trim().replace(/\s+/g, ' ');
+                if (!w) return;
+                var key = Engine.clean(w).replace(/[^a-z0-9]/g, '') || w;
+                if (seen[key]) return;
+                seen[key] = true;
+                out.push(w);
+            });
+            return out;
+        }
 
-            $("#title-text").html(`CASANDRA <span class="text-grunge-amber amber-glow">// ${lang}</span>`);
-            $("#form").attr("placeholder", dict.placeholder).val("");
-            
-            $(".preset.astrology").val(dict.astrology);
-            $(".preset.planets").val(dict.planets);
-            $(".preset.days").val(dict.days);
-            $(".preset.months").val(dict.months);
-            $(".preset.animals").val(dict.animals);
-            $(".preset.superheros").val(dict.superheros);
+        function wordsOf(node) {
+            return node.S.map(function (i) { return solver.words[i]; });
+        }
 
-            $("#submit").val(dict.submit);
-            $("#label-max-error").text(dict.maxError);
-            $("#test").val(dict.test);
-            $("#save").val(dict.save);
-            $("#yes").val(dict.yes);
-            $("#no").val(dict.no);
-            $("#retest").val(dict.retest);
-            $("#goback").val(dict.goback);
+        /* ============================================================
+           IDIOMA
+           ============================================================ */
+        function updateWordCounter() {
+            var n = parseWords($('form').value).length;
+            $('lbl-word-count').textContent = n + ' ' + (n === 1 ? dict().word1 : dict().words);
+        }
 
-            $("#result, #testsave, #text, #yesno, #retestgoback").addClass("hidden");
+        function updateLanguage(code) {
+            lang = code;
+            var d = dict();
+
+            document.documentElement.lang = code.toLowerCase();
+            $('title-text').innerHTML = 'CASANDRA <span class="text-grunge-amber amber-glow">// ' + code + '</span>';
+
+            Array.prototype.forEach.call(document.querySelectorAll('#language span'), function (el) {
+                var on = el.dataset.lang === code;
+                el.classList.toggle('text-gray-500', !on);
+                ['sel', 'text-grunge-amber', 'font-bold', 'bg-grunge-card'].forEach(function (c) { el.classList.toggle(c, on); });
+            });
+            Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) {
+                el.textContent = d[el.dataset.i18n];
+            });
+            Array.prototype.forEach.call(document.querySelectorAll('.preset'), function (el) {
+                el.value = d[el.dataset.p];
+            });
+            Array.prototype.forEach.call($('prio').options, function (o) { o.textContent = d['prio_' + o.value]; });
+
+            $('form').placeholder = d.placeholder;
+            $('form').value = '';
+            $('submit').value = d.submit;
+            $('test').value = d.test;
+            $('save').value = d.save;
+            $('yes').value = d.yes;
+            $('no').value = d.no;
+            $('retest').value = d.retest;
+            $('goback').value = d.goback;
+
+            solver = root = current = null;
+            setHidden('result testsave text yesno retestgoback', true);
             updateWordCounter();
         }
 
-        function cleanAccents(str) {
-            var map = {'á':'a','à':'a','â':'a','ä':'a','å':'a','ã':'a','ç':'c','é':'e','è':'e','ê':'e','ë':'e','í':'i','ì':'i','î':'i','ï':'i','ñ':'n','ó':'o','ò':'o','ô':'o','ö':'o','õ':'o','ø':'o','š':'s','ú':'u','ù':'u','û':'u','ü':'u','ý':'y','ÿ':'y','ž':'z','æ':'ae','œ':'oe'};
-            return str.replace(/[áàâäåãçéèêëíìîïñóòôöõøšúùûüýÿžæœ]/g, function(c) { return map[c] || c; });
+        /* ============================================================
+           RENDER DEL ÁRBOL (mismas clases/estructura visual que antes)
+           ============================================================ */
+        function renderNode(node, side) {
+            var el = document.createElement('div');
+            el.className = side === 'no' ? 'grp1' : 'grp2';
+            el._node = node;
+
+            if (!node.letter) {                                   // hoja: lista final de palabras
+                el.classList.add('leaf');
+                if (solver.canSplit(node.S)) el.classList.add('expandable');
+                var span = document.createElement('span');
+                span.textContent = wordsOf(node).join(', ');
+                el.appendChild(span);
+                return el;
+            }
+
+            el.classList.add('open');                             // nodo con letra: [letra][no][sí]
+            var tile = document.createElement('div');
+            tile.className = 'grp0';
+            tile.textContent = node.letter.toUpperCase();
+            el.appendChild(tile);
+            el.appendChild(renderNode(node.no, 'no'));
+            el.appendChild(renderNode(node.yes, 'yes'));
+            return el;
         }
 
-        function updateWordCounter() {
-            var raw = $("#form").val();
-            var words = raw.split(",").map(function(w) { return w.trim(); }).filter(Boolean);
-            $("#lbl-word-count").text(words.length + " palabras");
+        function renderStats() {
+            var m = Engine.metrics(root), d = dict();
+            var f = function (x) { return String(+x.toFixed(1)); };
+            $('stat-q').textContent = d.statQ + ': ' + f(m.avgQ) + ' ' + d.avg + ' / ' + m.maxQ + ' ' + d.max;
+            $('stat-o').textContent = d.statO + ': ' + f(m.avgO) + ' ' + d.avg + ' / ' + m.maxO + ' ' + d.max;
         }
 
-        function buildTree(node) {
-            var dict = I18N[currentLang];
-            var wordsList = $(node).find("span").map(function() { return $(this).text(); }).get().join(", ").split(",");
-            wordsList = wordsList.map(function(w) { return w.trim(); }).filter(Boolean);
-            var totalWords = wordsList.length;
+        function draw() {
+            $('result').replaceChildren(renderNode(root, 'yes'));
+            renderStats();
+        }
 
-            if (totalWords >= 2) {
-                if ($(node).children(".letters").length === 0) {
-                    var letterTpl = $(".letters").html();
-                    $(node).prepend('<div class="letters">' + letterTpl + '</div>');
-                } else {
-                    $(node).children(".letters").find("h").text("0");
-                }
+        /* ============================================================
+           GENERAR
+           ============================================================ */
+        function generate() {
+            var d = dict();
+            var words = parseWords($('form').value);
 
-                $.each(wordsList, function(i, word) {
-                    var clean = cleanAccents(word.toLowerCase());
-                    $(node).children(".letters").find("h").each(function() {
-                        var letterClass = $(this).attr("class");
-                        if (clean.indexOf(letterClass) >= 0) {
-                            var cnt = parseInt($(this).text(), 10) + 1;
-                            $(this).html(cnt);
-                        }
-                    });
+            if (words.length < 2) { alert(d.alert01); return; }
+
+            var s = Engine.createSolver(words, Engine.PRIORITY[$('prio').value]);
+            if (!s.canSplit(words.map(function (_, i) { return i; }))) { alert(d.alert02); return; }
+
+            solver = s;
+            root = s.root(parseInt($('nonumb').value, 10) - 1);
+            current = null;
+            draw();
+
+            setHidden('result testsave', false);
+            setHidden('text yesno retestgoback', true);
+            scrollToEl($('result'));
+
+            // Precarga la librería de la imagen cuando el navegador esté libre
+            (window.requestIdleCallback || function (fn) { return setTimeout(fn, 1500); })(function () {
+                loadHtml2Canvas().catch(function () {});
+            });
+        }
+
+        // Clic en una letra: siguiente letra alternativa. Clic en una lista: dividirla.
+        function onTreeClick(e) {
+            var tile = e.target.closest('.grp0'), box;
+            if (tile) {
+                box = tile.parentNode;
+                solver.retarget(box._node);
+            } else {
+                box = e.target.closest('.leaf.expandable');
+                if (!box) return;
+                solver.expand(box._node);
+            }
+            box.replaceWith(renderNode(box._node, box.classList.contains('grp1') ? 'no' : 'yes'));
+            renderStats();
+            setHidden('testsave', false);
+            setHidden('text yesno', true);
+        }
+
+        /* ============================================================
+           GUARDAR IMAGEN (html2canvas se descarga solo cuando hace falta)
+           ============================================================ */
+        function loadHtml2Canvas() {
+            if (window.html2canvas) return Promise.resolve(window.html2canvas);
+            if (!h2cPromise) {
+                h2cPromise = new Promise(function (resolve, reject) {
+                    var s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    s.onload = function () { resolve(window.html2canvas); };
+                    s.onerror = function () { h2cPromise = null; reject(new Error('html2canvas')); };
+                    document.head.appendChild(s);
                 });
+            }
+            return h2cPromise;
+        }
 
-                var maxOccur = 0;
-                $(node).children(".letters").find("h").each(function() {
-                    var val = parseInt($(this).text(), 10);
-                    if (val !== totalWords && "used" !== $(this).attr("value")) {
-                        maxOccur = maxOccur < val ? val : maxOccur;
+        function saveImage() {
+            loadHtml2Canvas().then(function (html2canvas) {
+                return html2canvas($('result'), {
+                    backgroundColor: '#070709',
+                    scale: Math.min(window.devicePixelRatio || 1, 2),
+                    onclone: function (doc) {        // captura el esquema completo, no solo la parte visible
+                        var r = doc.getElementById('result');
+                        r.style.maxHeight = 'none';
+                        r.style.overflow = 'visible';
                     }
                 });
+            }).then(function (canvas) {
+                var a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = 'casandra-anagrama.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }).catch(function () { alert(dict().alert03); });
+        }
 
-                if (maxOccur === 0) {
-                    $(node).children(".letters").find("h").each(function() {
-                        var val = parseInt($(this).text(), 10);
-                        $(this).attr("value", "notUsed").css("background-color", "transparent");
-                        if (val !== totalWords) maxOccur = maxOccur < val ? val : maxOccur;
-                    });
-                }
+        /* ============================================================
+           MODO ENSAYO (guión en vivo, recorre el árbol)
+           ============================================================ */
+        function say(html) { $('script-display').innerHTML = html; }
+        function big(letter) { return esc(letter.toUpperCase()); }
 
-                var chosenLetter = "";
-                $(node).children(".letters").find("h").each(function() {
-                    var val = parseInt($(this).text(), 10);
-                    if ("used" !== $(this).attr("value") && val === maxOccur) {
-                        chosenLetter = $(this).attr("class");
-                        $(this).attr("value", "used").css("background-color", "red");
-                        return false;
-                    }
-                });
+        function startTest() {
+            if (!root) return;
+            var d = dict();
+            current = root;
+            say(d.sent01a + big(root.letter) + d.sent01b);
+            setHidden('result testsave retestgoback', true);
+            setHidden('text yesno', false);
+            scrollToEl($('text'));
+        }
 
-                var nodeClass = $(node).attr("class");
-                var prevClass = $(node).prev().attr("class");
+        function answer(yes) {
+            if (!current || $('yesno').classList.contains('hidden')) return;
+            var d = dict(), next = yes ? current.yes : current.no;
 
-                if (nodeClass === "grp1" && prevClass === "grp0") {
-                    $(node).css({ width: "calc(100% - 60px)", margin: "0", padding: "0", "background-color": "transparent", cursor: "default", border: "none", "box-shadow": "none" });
-                } else {
-                    $(node).css({ width: "100%", margin: "0", padding: "0", "background-color": "transparent", cursor: "default", border: "none", "box-shadow": "none" });
-                }
-
-                $(node).find("span, .grp0, .grp1, .grp2").remove();
-                $(node).append("<div class='grp0'>" + chosenLetter.toUpperCase() + "</div><div class='grp1'><span></span></div><div class='grp2'><span></span></div>");
-
-                $.each(wordsList, function(i, word) {
-                    var clean = cleanAccents(word.toLowerCase());
-                    if (clean.indexOf(chosenLetter) >= 0) {
-                        var targetGrp2 = $(node).children(".grp2").find("span");
-                        targetGrp2.is(":empty") ? targetGrp2.append(word) : targetGrp2.append(", " + word);
-                    } else {
-                        var targetGrp1 = $(node).children(".grp1").find("span");
-                        targetGrp1.is(":empty") ? targetGrp1.append(word) : targetGrp1.append(", " + word);
-                    }
-                });
-
-                buildTree($(node).children(".grp2"));
+            if (next.letter) {                                   // aún quedan letras por nombrar
+                current = next;
+                say((yes ? d.sent02a : d.sent04a) + big(next.letter) + (yes ? d.sent02b : d.sent04b));
+            } else {                                             // lista final de palabras
+                var list = wordsOf(next).map(function (w) { return esc(w.toUpperCase()); }).join(d.sent00a);
+                say((yes ? d.sent03a : d.sent05a) + list + (yes ? d.sent03b : d.sent05b));
+                current = null;
+                setHidden('yesno', true);
+                setHidden('retestgoback', false);
             }
         }
 
-        $(document).ready(function() {
-            updateLanguage("ES");
+        /* ============================================================
+           PWA
+           ============================================================ */
+        function setupPWA() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('sw.js').catch(function () {});
+                });
+            }
+            var btn = $('pwa-install-btn'), deferred = null;
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                deferred = e;
+                btn.classList.remove('hidden');
+            });
+            btn.addEventListener('click', function () {
+                if (!deferred) return;
+                btn.classList.add('hidden');
+                deferred.prompt();
+                deferred = null;
+            });
+            window.addEventListener('appinstalled', function () { btn.classList.add('hidden'); });
+        }
 
-            // Input Counter Listener
-            $("#form").on("input", updateWordCounter);
-
-            // Click Language Handlers
-            $("#lang-en").click(function() { updateLanguage("EN"); });
-            $("#lang-fr").click(function() { updateLanguage("FR"); });
-            $("#lang-es").click(function() { updateLanguage("ES"); });
-
-            // Presets Handlers
-            $(".preset").click(function() {
-                var dict = I18N[currentLang];
-                if ($(this).hasClass("astrology")) $("#form").val(dict.astrology_words);
-                if ($(this).hasClass("planets")) $("#form").val(dict.planets_words);
-                if ($(this).hasClass("days")) $("#form").val(dict.days_words);
-                if ($(this).hasClass("months")) $("#form").val(dict.months_words);
-                if ($(this).hasClass("animals")) $("#form").val(dict.animals_words);
-                if ($(this).hasClass("superheros")) $("#form").val(dict.superheros_words);
+        /* ============================================================
+           EVENTOS
+           ============================================================ */
+        $('form').addEventListener('input', updateWordCounter);
+        $('language').addEventListener('click', function (e) {
+            var el = e.target.closest('[data-lang]');
+            if (el) updateLanguage(el.dataset.lang);
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('.preset'), function (btn) {
+            btn.addEventListener('click', function () {
+                $('form').value = dict()[btn.dataset.p + '_words'];
                 updateWordCounter();
             });
-
-            // Submit / Build Generator
-            $("#submit").click(function() {
-                var dict = I18N[currentLang];
-                var raw = $("#form").val().toLowerCase();
-                var words = raw.split(",").map(function(w) { return w.trim(); }).filter(Boolean);
-
-                if (words.length < 2) {
-                    alert(dict.alert01);
-                    return;
-                }
-
-                $("#main").children(".letters").find("h").text("0");
-
-                $.each(words, function(i, word) {
-                    var clean = cleanAccents(word);
-                    $("#main").children(".letters").find("h").each(function() {
-                        var letterClass = $(this).attr("class");
-                        if (clean.indexOf(letterClass) >= 0) {
-                            var cnt = parseInt($(this).text(), 10) + 1;
-                            $(this).html(cnt);
-                        }
-                    });
-                });
-
-                var maxVal = 0;
-                $("#main").children(".letters").find("h").each(function() {
-                    var val = parseInt($(this).text(), 10);
-                    if (val !== words.length) maxVal = maxVal < val ? val : maxVal;
-                });
-
-                $("#main").children(".letters").find("h").text("0");
-
-                if (maxVal === 0) {
-                    alert(dict.alert02);
-                    return;
-                }
-
-                $("#result").html("<div class='grp2'><span>" + words.join(", ") + "</span></div>");
-                buildTree($("#result").children(".grp2"));
-
-                var errorMargin = parseInt($("#nonumb").val(), 10);
-                if (errorMargin >= 2) {
-                    $.each($("#result").find(".grp0"), function() {
-                        buildTree($(this).next());
-                        if (errorMargin >= 3) {
-                            $.each($(this).next().find(".grp0"), function() {
-                                buildTree($(this).next());
-                            });
-                        }
-                    });
-                }
-
-                $("#result, #testsave").removeClass("hidden");
-                $("#text, #yesno, #retestgoback").addClass("hidden");
-
-                // Scroll automático suave hacia los resultados generados
-                $('html, body').animate({
-                    scrollTop: $("#result").offset().top - 80
-                }, 500);
-            });
-
-            // Interactive Node Inspection
-            $("body").on("click", ".grp0, .grp1, .grp2", function() {
-                $("#testsave").removeClass("hidden");
-                $("#text, #yesno").addClass("hidden");
-                if ($(this).hasClass("grp0")) {
-                    buildTree($(this).parent());
-                    return false;
-                }
-                if ($(this).css("background-color") !== "rgba(0, 0, 0, 0)") {
-                    buildTree(this);
-                    return false;
-                }
-            });
-
-            // HTML2Canvas Image Export
-            $("#save").click(function() {
-                var el = document.getElementById("result");
-                html2canvas(el, { backgroundColor: "#070709" }).then(function(canvas) {
-                    var img = canvas.toDataURL("image/png");
-                    var a = document.createElement("a");
-                    a.href = img;
-                    a.download = "casandra-anagrama.png";
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                });
-            });
-
-            // Performance Rehearsal Mode
-            $("body").on("click", "#test, #retest", function() {
-                var dict = I18N[currentLang];
-                etape = $("#result").children(".grp2").children(".grp0");
-                var letter = etape.text().toUpperCase();
-                $("#script-display").html(dict.sent01a + letter + dict.sent01b);
-                $("#result, #testsave, #retestgoback").addClass("hidden");
-                $("#text, #yesno").removeClass("hidden");
-
-                $('html, body').animate({
-                    scrollTop: $("#text").offset().top - 80
-                }, 400);
-            });
-
-            // Script Yes Branch
-            $("#yes").click(function() {
-                var dict = I18N[currentLang];
-                if ($(etape).next().next().children().next().hasClass("grp0")) {
-                    etape = $(etape).next().next().children(".grp0");
-                    var letter = etape.text().toUpperCase();
-                    $("#script-display").html(dict.sent02a + letter + dict.sent02b);
-                } else {
-                    etape = $(etape).next().next().children("span");
-                    var words = etape.text().toUpperCase().replace(/,/g, dict.sent00a);
-                    $("#script-display").html(dict.sent03a + words + dict.sent03b);
-                    $("#yesno").addClass("hidden");
-                    $("#retestgoback").removeClass("hidden");
-                }
-            });
-
-            // Script No Branch
-            $("#no").click(function() {
-                var dict = I18N[currentLang];
-                if ($(etape).next().children().next().hasClass("grp0")) {
-                    etape = $(etape).next().children(".grp0");
-                    var letter = etape.text().toUpperCase();
-                    $("#script-display").html(dict.sent04a + letter + dict.sent04b);
-                } else {
-                    etape = $(etape).next().children("span");
-                    var words = etape.text().toUpperCase().replace(/,/g, dict.sent00a);
-                    $("#script-display").html(dict.sent05a + words + dict.sent05b);
-                    $("#yesno").addClass("hidden");
-                    $("#retestgoback").removeClass("hidden");
-                }
-            });
-
-            // Back to Diagram
-            $("#goback").click(function() {
-                $("#result, #testsave").removeClass("hidden");
-                $("#text, #retestgoback").addClass("hidden");
-            });
-
-            // Keyboard Shortcuts for Live Test Mode
-            window.addEventListener('keydown', function(e) {
-                if ($("#text").hasClass("hidden")) return;
-                if (e.key === 'ArrowRight' || e.key.toLowerCase() === 's' || e.key.toLowerCase() === 'y') {
-                    $("#yes").click();
-                }
-                if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'n') {
-                    $("#no").click();
-                }
-            });
-
-            // Initialize PWA Support
-            setupPWA();
+        });
+        $('submit').addEventListener('click', generate);
+        $('result').addEventListener('click', onTreeClick);
+        $('save').addEventListener('click', saveImage);
+        $('test').addEventListener('click', startTest);
+        $('retest').addEventListener('click', startTest);
+        $('yes').addEventListener('click', function () { answer(true); });
+        $('no').addEventListener('click', function () { answer(false); });
+        $('goback').addEventListener('click', function () {
+            setHidden('result testsave', false);
+            setHidden('text retestgoback', true);
         });
 
-        // Dynamic PWA Registration via Blob URIs
-        function setupPWA() {
-            var manifestData = {
-                name: "CASANDRA Progressive Anagram",
-                short_name: "CASANDRA",
-                start_url: ".",
-                display: "standalone",
-                background_color: "#070709",
-                theme_color: "#070709",
-                icons: [{
-                    src: "https://placehold.co/192x192/070709/ffb000?text=CASANDRA",
-                    sizes: "192x192",
-                    type: "image/png"
-                }]
-            };
+        // Atajos de teclado en el modo ensayo
+        window.addEventListener('keydown', function (e) {
+            if (e.ctrlKey || e.metaKey || e.altKey || $('text').classList.contains('hidden')) return;
+            var k = (e.key || '').toLowerCase();
+            if (k === 'arrowright' || k === 's' || k === 'y') answer(true);
+            else if (k === 'arrowleft' || k === 'n') answer(false);
+        });
 
-            var manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
-            var manifestURL = URL.createObjectURL(manifestBlob);
-            var manifestLink = document.createElement('link');
-            manifestLink.rel = 'manifest';
-            manifestLink.href = manifestURL;
-            document.head.appendChild(manifestLink);
-
-            if ('serviceWorker' in navigator) {
-                var swCode = `
-                    const CACHE = 'casandra-anagram-v1';
-                    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE)));
-                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-                `;
-                var swBlob = new Blob([swCode], { type: 'application/javascript' });
-                var swURL = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swURL).catch(function(){});
-            }
-
-            var deferredPrompt = null;
-            window.addEventListener('beforeinstallprompt', function(e) {
-                e.preventDefault();
-                deferredPrompt = e;
-                var installBtn = document.getElementById('pwa-install-btn');
-                if (installBtn) {
-                    installBtn.classList.remove('hidden');
-                    installBtn.onclick = function() {
-                        installBtn.classList.add('hidden');
-                        deferredPrompt.prompt();
-                        deferredPrompt.userChoice.then(function(choiceResult) {
-                            deferredPrompt = null;
-                        });
-                    };
-                }
-            });
-        }
+        updateLanguage('ES');
+        setupPWA();
     })();
     </script>
+
+    <!-- Vercel Speed Insights (el paquete está en tu package.json; en HTML plano se carga así) -->
+    <script>window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };</script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>
